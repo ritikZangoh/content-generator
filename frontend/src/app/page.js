@@ -1,14 +1,17 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import ClipLoader from 'react-spinners/ClipLoader'
 
 export default function Home() {
   const [typeOfContent, setTypeOfContent] = useState('')
   const [message, setMessage] = useState('')
   const [charCount, setCharCount] = useState(0)
-  const [responceMessage, setResponceMessage] = useState('')
+  const [responseMessage, setResponseMessage] = useState('')
+  const [responseWordCount, setResponseWordCount] = useState(0);
   const [paidStatus, setPaidStatus] = useState(true) // State for billing status
   const [readOnly, setReadOnly] = useState(false) // State for readonly
+  const [loading, setLoading] = useState(false)
 
   const searchParams = useSearchParams()
 
@@ -40,7 +43,7 @@ export default function Home() {
   // Change state when bill is unpaid
   function setBillingMessage() {
     if (!paidStatus) {
-      setResponceMessage(
+      setResponseMessage(
         'Hey! This AI modal is having trouble, this is typically due to a billing issue. Please contact your site administrator for more info.',
       )
       setReadOnly(true)
@@ -73,7 +76,8 @@ export default function Home() {
   // To handle the generate content
   async function handleGenerateContent() {
     if (!message) return
-    
+    setLoading(true);
+
     try {
       const responce = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/handle_request', {
         method: 'POST',
@@ -83,16 +87,18 @@ export default function Home() {
         body: JSON.stringify({ modalId: modalID, msg: message }),
       })
 
-      const responceData = await responce.json()
+      const responseData = await responce.json()
 
       if (responce.status === 200) {
-        setResponceMessage(responceData.msg)
+        setResponseMessage(responseData.msg)
       } else {
-        setResponceMessage(responceData.error)
+        setResponseMessage(responseData.error)
       }
+      setResponseWordCount(responseData.msg.trim().split(/\s+/).length);
     } catch (error) {
       console.log('Error: ' + error)
     }
+    setLoading(false);
   }
 
   return (
@@ -101,9 +107,13 @@ export default function Home() {
       style={{ fontFamily: fontFamily }}
     >
       <div
-        className={`w-[491px] shadow-md rounded-xl px-6 py-5`}
+        className="w-[491px] shadow-md relative rounded-xl px-6 py-5"
         style={{ width: width + 'px', height: height + 'px' }}
       >
+        <ClipLoader
+          cssOverride={{ position: 'absolute', top: '20px', right: '50%' }}
+          loading={loading}
+        />
         <div className="relative">
           <h2
             className="text-[14px] font-bold mt-6 text-[#16192C]"
@@ -153,9 +163,10 @@ export default function Home() {
             rows="3"
             disabled={readOnly}
             style={{ background: readOnly ? 'white' : '#F2F2F2' }}
-            value={responceMessage}
-            onChange={(e) => setResponceMessage(e.target.value)}
+            value={responseMessage}
+            onChange={(e) => setResponseMessage(e.target.value)}
           ></textarea>
+          <p className="text-xs text-right">Words: {responseWordCount}</p>
         </div>
       </div>
     </div>

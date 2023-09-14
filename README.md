@@ -1,37 +1,99 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Document Based QA Chat Bot
 
-## Getting Started
+## Problem Statement
 
-First, run the development server:
+Many website owners want chatbots on their sites to assist visitors, but creating and embedding chatbots can be tricky. They need a user-friendly solution that simplifies chatbot creation, makes it easy to add useful information to chatbots, and allows effortless integration into their websites. This solution aims to help website owners engage with visitors more effectively and improve their websites' user experience.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## Our Solution 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+![alt Flow Chat](./flow-chart.png)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+# Chatbot App Setup Guide
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+This guide will walk you through the process of setting up a chatbot application with a Flask backend and a frontend interface. Follow the steps below to get started.
 
-## Learn More
+## Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+Before you begin, ensure that you have the following software installed on your system:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Python (3.x recommended)
+- Flask (Python web framework)
+- Node.js and npm (for frontend setup)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Setup
 
-## Deploy on Vercel
+1. **Download the code:**
+Extract the folder, and open the main root folder.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **Excute command for setup environment:**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-# content-generator
-# content-generator
-# content-generator
+   ```shell
+   ./setup.sh
+   ```
+
+3. **Start development server:**
+
+   ```shell
+   ./launch-webapp.sh
+   ```
+
+4. **Setting environment variables:**
+To configure additional environment variables for your application, In backend/.env file and define them as follows:
+
+
+   * PINECONE_API_KEY=ENTER_PINECONE_KEY
+   * POSTGRESQL_CONNECTION_URI=ENTER_POSRGRECONNECTION_URI
+
+
+     To get pinecone key visit [https://docs.pinecone.io](https://docs.pinecone.io/docs/quickstart#2-get-and-verify-your-pinecone-api-key)
+
+The frontend will be available at [http://localhost:3000](http://localhost:3000) (by default).
+<br>
+
+## **For Production:**
+
+1. **Download the code:**
+Extract the folder, and open the main root folder.
+
+2. **Excute command for setup environment:**
+
+   ```shell
+   ./setup.sh
+   ```
+
+3. **Setting environment variables:**
+To configure additional environment variables for your application, in backend/.env file and define them as follows:
+
+
+   * PINECONE_API_KEY=ENTER_PINECONE_KEY
+   * POSTGRESQL_CONNECTION_URI=ENTER_POSRGRECONNECTION_URI
+
+
+     To get pinecone key visit [https://docs.pinecone.io](https://docs.pinecone.io/docs/quickstart#2-get-and-verify-your-pinecone-api-key)
+
+4. **Start backend server:**
+   
+   ```shell
+   cd backend
+   gunicorn -k eventlet -w 1 main:app
+   ```
+
+5. **Configure the frontend to communicate with the backend:**
+
+   Update the API endpoint in your frontend code in .env to match the backend URL (e.g., http://127.0.0.1:8000).
+
+6. **Start frontend server:**
+   
+   ```shell
+   cd frontend
+   npm run build
+   npm run start
+   ```
+
+Be sure to configure environment variables, security settings, and database connections as needed.
+The frontend will be available at [http://localhost:3000](http://localhost:3000) (by default).
+
+<br>
+
+## Contact Support
+If you encounter any issues or have questions at any stage of the process, please don't hesitate to reach out to our support team at support@example.com. We're here to assist you.

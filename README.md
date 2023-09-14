@@ -8,9 +8,9 @@ Many website owners want chatbots on their sites to assist visitors, but creatin
 
 ![alt Flow Chat](./flow-chart.png)
 
-# Chatbot App Setup Guide
+# Content Generator App Setup Guide
 
-This guide will walk you through the process of setting up a chatbot application with a Flask backend and a frontend interface. Follow the steps below to get started.
+This guide will walk you through the process of setting up a content generator application with a Flask backend and a frontend interface. Follow the steps below to get started.
 
 ## Prerequisites
 
@@ -19,6 +19,7 @@ Before you begin, ensure that you have the following software installed on your 
 - Python (3.x recommended)
 - Flask (Python web framework)
 - Node.js and npm (for frontend setup)
+- Mysql server (for database)
 
 ## Setup
 
@@ -42,7 +43,6 @@ To configure additional environment variables for your application, In backend/.
 
 
    * PINECONE_API_KEY=ENTER_PINECONE_KEY
-   * POSTGRESQL_CONNECTION_URI=ENTER_POSRGRECONNECTION_URI
 
 
      To get pinecone key visit [https://docs.pinecone.io](https://docs.pinecone.io/docs/quickstart#2-get-and-verify-your-pinecone-api-key)
@@ -66,7 +66,6 @@ To configure additional environment variables for your application, in backend/.
 
 
    * PINECONE_API_KEY=ENTER_PINECONE_KEY
-   * POSTGRESQL_CONNECTION_URI=ENTER_POSRGRECONNECTION_URI
 
 
      To get pinecone key visit [https://docs.pinecone.io](https://docs.pinecone.io/docs/quickstart#2-get-and-verify-your-pinecone-api-key)

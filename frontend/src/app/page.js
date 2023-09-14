@@ -24,7 +24,7 @@ export default function Home() {
   // To set the readOnly state
   useEffect(() => {
     setReadOnly(searchParams.get('modaltype') === 'read' ? true : false)
-    intializeChatBot();
+    initializeChatBot();
   }, [])
 
   // To change state to unpaid
@@ -48,16 +48,20 @@ export default function Home() {
   }
 
   // To get billing status of user
-  async function intializeChatBot() {
+  async function initializeChatBot() {
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/intialize_chatbot', {
+      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/initialize_chatbot',{
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ modalId: modalID }),
       })
       const responseData = await response.json()
 
       if (response.status == 200) {
-        setPaidStatus(responseData.paid)
+        let paid = responseData.paid == 0 ? false : true;
+        setPaidStatus(paid)
         setTypeOfContent(responseData.contentType);
       }
     } catch (error) {
@@ -68,8 +72,8 @@ export default function Home() {
 
   // To handle the generate content
   async function handleGenerateContent() {
-    if (!message) message
-
+    if (!message) return
+    
     try {
       const responce = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/handle_request', {
         method: 'POST',
@@ -115,6 +119,8 @@ export default function Home() {
             className="w-full bg-[#F2F2F2] mt-[10px] px-[18px] py-3 rounded-md"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) =>{ if(e.key === 'Enter') handleGenerateContent()}}
+            disabled={!paidStatus}
             type="text"
             required
             maxLength="2048"

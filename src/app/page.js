@@ -1,113 +1,157 @@
-import Image from 'next/image'
+'use client'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function Home() {
+  const [typeOfContent, setTypeOfContent] = useState('')
+  const [message, setMessage] = useState('')
+  const [charCount, setCharCount] = useState(0)
+  const [responceMessage, setResponceMessage] = useState('')
+  const [paidStatus, setPaidStatus] = useState(true) // State for billing status
+  const [readOnly, setReadOnly] = useState(false) // State for readonly
+
+  const searchParams = useSearchParams()
+
+  const fontFamily = searchParams.get('fontfamily')
+  const textColor = searchParams.get('textcolor')
+  const buttonColor = searchParams.get('buttoncolor')
+  const fontWeight = searchParams.get('fontweight')
+  const buttonWeight = searchParams.get('buttonweight')
+  const width = searchParams.get('width')
+  const height = searchParams.get('height')
+  const modalID = searchParams.get('key')
+
+  // To set the readOnly state
+  useEffect(() => {
+    setReadOnly(searchParams.get('modaltype') === 'read' ? true : false)
+    intializeChatBot();
+  }, [])
+
+  // To change state to unpaid
+  useEffect(() => {
+    setBillingMessage()
+  }, [paidStatus])
+
+  // To update char count of message
+  useEffect(() => {
+    setCharCount(message.length)
+  }, [message])
+
+  // Change state when bill is unpaid
+  function setBillingMessage() {
+    if (!paidStatus) {
+      setResponceMessage(
+        'Hey! This AI modal is having trouble, this is typically due to a billing issue. Please contact your site administrator for more info.',
+      )
+      setReadOnly(true)
+    }
+  }
+
+  // To get billing status of user
+  async function intializeChatBot() {
+    try {
+      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/intialize_chatbot', {
+        method: 'POST',
+        body: JSON.stringify({ modalId: modalID }),
+      })
+      const responseData = await response.json()
+
+      if (response.status == 200) {
+        setPaidStatus(responseData.paid)
+        setTypeOfContent(responseData.contentType);
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      // Handle errors here
+    }
+  }
+
+  // To handle the generate content
+  async function handleGenerateContent() {
+    if (!message) message
+
+    try {
+      const responce = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/handle_request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ modalId: modalID, msg: message }),
+      })
+
+      const responceData = await responce.json()
+
+      if (responce.status === 200) {
+        setResponceMessage(responceData.msg)
+      } else {
+        setResponceMessage(responceData.error)
+      }
+    } catch (error) {
+      console.log('Error: ' + error)
+    }
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div
+      className="w-screen h-screen flex items-center justify-center"
+      style={{ fontFamily: fontFamily }}
+    >
+      <div
+        className={`w-[491px] shadow-md rounded-xl px-6 py-5`}
+        style={{ width: width + 'px', height: height + 'px' }}
+      >
+        <div className="relative">
+          <h2
+            className="text-[14px] font-bold mt-6 text-[#16192C]"
+            style={{ color: '#' + textColor, fontWeight: fontWeight }}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            Tell me what to {typeOfContent}
+          </h2>
+          <span className="text-[12px] text-[#868686] absolute top-0 right-0">
+            {charCount}/2048
+          </span>
+
+          <input
+            className="w-full bg-[#F2F2F2] mt-[10px] px-[18px] py-3 rounded-md"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            type="text"
+            required
+            maxLength="2048"
+          />
+
+          <button
+            onClick={handleGenerateContent}
+            className="mt-5 w-full text-white bg-primary-dark p-3 rounded-lg"
+            style={{
+              fontWeight: buttonWeight,
+              background: '#' + buttonColor,
+              opacity: paidStatus ? '1' : '0.5',
+            }}
+          >
+            Generate
+          </button>
+
+          <h2
+            className="text-[14px] font-bold mt-6 text-[#16192C]"
+            style={{ color: '#' + textColor, fontWeight: fontWeight }}
+          >
+            Here is your generated content
+          </h2>
+
+          <textarea
+            className="w-full bg-[#F2F2F2] mt-[10px] px-[10px] py-2 rounded-md text-[#425466] font-light overflow-scroll"
+            name=""
+            id=""
+            cols="30"
+            rows="3"
+            disabled={readOnly}
+            style={{ background: readOnly ? 'white' : '#F2F2F2' }}
+            value={responceMessage}
+            onChange={(e) => setResponceMessage(e.target.value)}
+          ></textarea>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   )
 }

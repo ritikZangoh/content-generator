@@ -1,8 +1,6 @@
 # Document Based QA Chat Bot
 
-## Problem Statement
-
-Many website owners want chatbots on their sites to assist visitors, but creating and embedding chatbots can be tricky. They need a user-friendly solution that simplifies chatbot creation, makes it easy to add useful information to chatbots, and allows effortless integration into their websites. This solution aims to help website owners engage with visitors more effectively and improve their websites' user experience.
+Our company specializes in providing a web application that allows users to generate dynamic content that can be embedded on their own websites. This content generation capability is a valuable tool for users who want to engage their website visitors with real-time content, provide personalized responses, or enhance their site's interactivity.
 
 ## Our Solution 
 

@@ -75,7 +75,7 @@ export default function Home() {
 
   // To handle the generate content
   async function handleGenerateContent() {
-    if (!message) return
+    if ( !message ) return
     setLoading(true);
 
     try {
@@ -166,7 +166,7 @@ export default function Home() {
             value={responseMessage}
             onChange={(e) => setResponseMessage(e.target.value)}
           ></textarea>
-          <p className="text-xs text-right">Words: {responseWordCount}</p>
+          <p className="text-xs text-right text-[#868686] mt-1">Words: {responseWordCount}</p>
         </div>
       </div>
     </div>

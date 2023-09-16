@@ -1,0 +1,3 @@
+url -X POST http://ec2-3-7-253-142.ap-south-1.compute.amazonaws.com/api/create_chat \
+-H "Content-Type: application/json" \
+-d "modalId=3928e9be-5e98-4fe5-85a5-1a3250e72b&title=Content Generator&description=Creating text for blogs, marketing or creative works.&contentType=Write an article&sampleFile=https://sample-chatbot-project.s3.ap-south-1.amazonaws.com/samp.txt&guidelines=Content generation guidelines&responseSize=250+"

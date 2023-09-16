@@ -1,4 +1,4 @@
-# Document Based QA Chat Bot
+# Document Based Content Generation Bot
 
 Our company specializes in providing a web application that allows users to generate dynamic content that can be embedded on their own websites. This content generation capability is a valuable tool for users who want to engage their website visitors with real-time content, provide personalized responses, or enhance their site's interactivity.
 
@@ -91,6 +91,8 @@ Be sure to configure environment variables, security settings, and database conn
 The frontend will be available at [http://localhost:3000](http://localhost:3000) (by default).
 
 <br>
+
+
 
 ## Contact Support
 If you encounter any issues or have questions at any stage of the process, please don't hesitate to reach out to our support team at support@example.com. We're here to assist you.

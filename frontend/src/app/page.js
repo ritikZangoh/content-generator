@@ -1,10 +1,19 @@
 'use client'
+/**
+ * Content Generation Next Page
+ * 
+ * This page is designed to be used as part of a web application that allows users to embed in their website for generate content dynamically.
+ * It includes features like character count, billing status, and customization options.
+ * 
+ * @component
+ */
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import ClipLoader from 'react-spinners/ClipLoader'
 import { Icon } from '@iconify/react'
 
 export default function Home() {
+  // State variables to manage various aspects of the component
   const [typeOfContent, setTypeOfContent] = useState('')
   const [message, setMessage] = useState('')
   const [charCount, setCharCount] = useState(0)
@@ -15,6 +24,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [waitForResponse, setWaitForResponce] = useState(false)
 
+  // Retrieve query parameters from the URL
   const searchParams = useSearchParams()
 
   const fontFamily = searchParams.get('fontfamily')
@@ -32,9 +42,9 @@ export default function Home() {
     initializeChatBot()
   }, [])
 
-  // To change state to unpaid
+  // To update status of billing
   useEffect(() => {
-    setBillingMessage()
+    updateBillingStatus()
   }, [paidStatus])
 
   // To update char count of message
@@ -42,8 +52,8 @@ export default function Home() {
     setCharCount(message.length)
   }, [message])
 
-  // Change state when bill is unpaid
-  function setBillingMessage() {
+  // To set billing status
+  function updateBillingStatus() {
     if (!paidStatus) {
       setResponseMessage(
         'Hey! This AI modal is having trouble, this is typically due to a billing issue. Please contact your site administrator for more info.',
@@ -73,8 +83,8 @@ export default function Home() {
         setTypeOfContent(responseData.contentType)
       }
     } catch (error) {
-      console.error('Error:', error)
       // Handle errors here
+      console.error('Error:', error)
     }
   }
 
@@ -105,12 +115,15 @@ export default function Home() {
       }
       setResponseWordCount(responseData.msg.trim().split(/\s+/).length)
     } catch (error) {
+      // Handle error here
       console.log('Error: ' + error)
     }
+
     setLoading(false)
     setWaitForResponce(false)
   }
 
+  // Component render
   return (
     <div
       className="w-screen h-screen flex items-center justify-center"

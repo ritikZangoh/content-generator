@@ -19,7 +19,7 @@ Before you begin, ensure that you have the following software installed on your 
 - Node.js and npm (for frontend setup)
 - Mysql server (for database)
 
-## Setup
+## Setup 
 
 1. **Download the code:**
 Extract the folder, and open the main root folder.
@@ -33,7 +33,6 @@ Extract the folder, and open the main root folder.
 3. **Setting environment variables:**
 To configure additional environment variables for your application, In backend/.env file and define them as follows:
 
-   * OPENAI_API_KEY=ENTER_YOUR_OPENAI_KEY
    * DOC_PATH=ENTER_YOUR_DOCUMENT_PATH
    * VECTOR_DB_PATH=ENTER_YOUR_VECTOR_DATABASE_PATH
 
@@ -96,6 +95,39 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 
 <br>
 
+## Add New Font
+
+Steps to add new font: 
+
+1. **Import font:**
+    Import the font that you want to add
+
+    ```shell
+    import { FONT_NAME } from 'next/font/google'
+    ```
+
+2. **Initialize Font:**
+    Initialize new font
+
+    ```shell
+    const font_name = FONT_NAME({ subsets: [], weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']})
+    ```
+
+3. **Set Font:**
+    Set new font in useEffect hook
+
+    ```shell
+    // To set font fontFamily
+    useEffect(() => {
+        ... 
+        ...
+        // Added below else block
+        else if(fontFamily.toLowerCase() === 'font_name_from_url'){
+            setFontStyle(FONT_NAME)
+        }
+    }, [])
+    ```
+
 # Deploying Flask and Next.js Apps on an EC2 Instance 
 This guide provides step-by-step instructions on how to deploy a Flask app and a Next.js app on an EC2 instance using Nginx as a reverse proxy. The Flask app will be accessible via the /api route, while the Next.js app will be served on the base URL.
 
@@ -105,6 +137,68 @@ Before you begin, make sure you have the following:
 - An AWS EC2 instance with SSH access.
 - A domain or subdomain pointing to the IP address of your EC2 instance (you can use Route 53 or any DNS provider).
 Python and Node.js installed on your EC2 instance.
+
+<br>
+
+## Setup for Mysql server
+
+1. **Install mysql on ec2:**
+
+Install mysql on local ubuntu machine or ec2.
+
+```shell
+sudo apt install mysql-server -y
+```
+
+2. **Start mysql server:**
+
+Run command to start mysql server
+
+```shell
+sudo systemctl start mysql
+```
+
+3. **Create a Database and User:**
+
+Log in to the MySQL server as the root user:
+
+```shell
+mysql -u root -p
+```
+
+Then, create a database and user and grant privileges:
+
+```shell
+CREATE DATABASE demozang;
+CREATE USER 'kzangoh' IDENTIFIED BY 'Super1432#*';
+GRANT ALL PRIVILEGES ON demozang.* TO 'kzangoh';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+4. **Create Table for store data:**
+
+Create table chattab in database demozang
+
+```shell
+USE demozang;
+```
+
+```shell
+CREATE TABLE chattab (
+    modalid VARCHAR(255) PRIMARY KEY,
+    title VARCHAR(255),
+    contentType VARCHAR(255),
+    samplefile VARCHAR(1024),
+    guidelines VARCHAR(255),
+    responSeSize VARCHAR(255),
+    description VARCHAR(500),
+    paid BOOLEAN,
+    openkey VARCHAR(255)
+);
+
+```
+
 
 <br>
 
@@ -118,7 +212,7 @@ git clone your_app.git
 
 <br>
 
-## Deploying the Flask App
+## Setup the Flask App
 1. **Change to Flask App Directory**
 
     Move to backend directory for setup flask app.
@@ -127,14 +221,7 @@ git clone your_app.git
     cd backend
     ```
 
-2. **Set Up a Virtual Environment**
-    Create and activate a virtual environment for your Flask app.
-
-    ```shell
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
-3. **Install Dependencies**
+2. **Install Dependencies**
 
     Install the required Python packages for your Flask app.
 
@@ -142,27 +229,7 @@ git clone your_app.git
     pip install -r requirements.txt
     ```
 
-4. **Configure Flask App**
-
-    To configure additional environment variables for your application, in backend/.env file and define them as follows:
-
-   * OPENAI_API_KEY=ENTER_YOUR_OPENAI_KEY
-   * DOC_PATH=ENTER_YOUR_DOCUMENT_PATH
-   * VECTOR_DB_PATH=ENTER_YOUR_VECTOR_DATABASE_PATH
-
-<br>
-
-5. **Run Flask App**
-
-    Run your Flask app on a specific port, e.g., 5000.
-
-    ```shell
-    python app.py
-    ```
-
-<br>
-
-## Deploying the Next.js App
+## Setup the Next.js App
 1. **Change to Next App Directory**
 
     Move to frontend directory for setup next app.
@@ -171,9 +238,14 @@ git clone your_app.git
     cd frontend
     ```
 
-2. **Configure the frontend to communicate with the backend:**
+2. **Setup Environment Variable:**
 
-   Update the API endpoint in your frontend code in .env to match the backend URL (e.g., http://YOUR_EC2_URL/api).
+   Add the below config in .env file 
+
+   ```
+   NEXT_PUBLIC_API_URL=https://YOUR_EC2_IP_ADDRESS/api
+   NEXT_PUBLIC_AUTHKEY=ajsjjsjjsjakflalsaldksdan
+   ```
 
 3. **Install Dependencies and Build the App**
 
@@ -184,70 +256,52 @@ git clone your_app.git
     npm run build
     ```
 
-4. **Run Next App**
-    
-    Run your Next app on a port 3000.
-
-    ```shell
-    npm run start
-    ```
-
 <br>
 
-# Nginx Config
+## Nginx Config
 
 Certainly! Here are example Nginx configuration files for both the Flask app (served on the /api route) and the Next.js app (served on the base URL) on an EC2 instance:
 
-## Nginx Configuration for Flask App
 
-Create an Nginx server block configuration file for the Flask app, e.g., <b>/etc/nginx/sites-available/flask_app</b>.
+Create an Nginx server block configuration file for the web app, e.g., <b>/etc/nginx/sites-available/web-app</b>.
+
+```shell
+sudo nano /etc/nginx/sites-available/web-app
+```
 
 ```
 server {
-    listen 80;
-    server_name your_domain_or_ip;
+    listen 80 default_server;
+    server_name YOUR_EC2_IP_ADDRESS;
 
+    # Allows content to be framed by any source
+    add_header Content-Security-Policy "frame-ancestors *;";
+    
     location /api {
-        proxy_pass http://127.0.0.1:5000; # Flask app running on port 5000
+        # Your default configuration goes here
+        proxy_pass http://localhost:4000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
 
-    # Add other location blocks or configurations as needed
+    location / {
+        # Your default configuration goes here
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
 }
 ```
 
 Now, create a symbolic link to this configuration file in the <b>/etc/nginx/sites-enabled</b> directory:
 
 ```shell
-sudo ln -s /etc/nginx/sites-available/flask_app /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/web-app /etc/nginx/sites-enabled/
+sudo nginx -t
 ```
 
 <br>
 
-## Nginx Configuration for Next.js App
-Create an Nginx server block configuration file for the Next.js app, e.g., <b>/etc/nginx/sites-available/nextjs_app</b>.
-
-```
-server {
-    listen 80;
-    server_name your_domain_or_ip;
-
-    location / {
-        proxy_pass http://127.0.0.1:3000; # Next.js app running on port 3000
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-
-    # Add other location blocks or configurations as needed
-}
-```
-
-Create a symbolic link to this configuration file in the <b>/etc/nginx/sites-enabled</b> directory:
-
-```shell
-sudo ln -s /etc/nginx/sites-available/nextjs_app /etc/nginx/sites-enabled/
-```
 
 ## Restart Nginx
 After creating both configuration files, restart Nginx to apply the changes:
@@ -262,12 +316,94 @@ These configurations will proxy requests to the Flask app to /api and requests t
 
 <br>
 
+# Setup Supervisor for Process Control System
+
+This guide provides step-by-step instructions for setting up Supervisor to manage Flask and Node.js applications on your server. Supervisor ensures that your applications run reliably, even after system reboots, and makes it easier to manage their lifecycle.
+
+<br>
+
+## Setting up Supervisor for Flask Apps
+
+### 1. Create a Supervisor Configuration File
+
+Create a new Supervisor configuration file for your Flask app in the `/etc/supervisor/conf.d/` directory. For example:
+
+```bash
+sudo nano /etc/supervisor/conf.d/my-flask-app.conf
+```
+
+### 2. Add following config
+
+In the configuration file, specify the settings for your Flask app:
+```
+command=/usr/bin/python3 /path/to/your/flask-app/start_server.py
+directory=/path/to/your/flask-app/
+user=ubuntu
+autostart=true
+autorestart=true
+redirect_stderr=true
+
+```
+
+### 3. List Changes
+
+```shell
+sudo supervisorctl reread
+sudo supervisorctl update
+```
+
+### Start App
+
+```shell
+sudo supervisorctl start my-flask-app
+sudo supervisorctl status my-flask-app
+```
+
+## Setup Supervisor for Next App
+
+### 1. Create a Supervisor Configuration File
+
+Create a new Supervisor configuration file for your Nwxt app in the `/etc/supervisor/conf.d/` directory. For example:
+
+```bash
+sudo nano /etc/supervisor/conf.d/my-next-app.conf
+```
+
+### 2. Add following config
+
+In the configuration file, specify the settings for your Next app:
+
+```
+[program:my-next-app]
+command=usr/bin/npm start
+directory=/path/to/next-app/
+user=ubuntu
+autostart=true
+autorestart=true
+redirect_stderr=true
+
+```
+
+### 3. List config file 
+
+```
+sudo supervisorctl reread
+sudo supervisorctl update
+```
+
+### 4. Start Next App
+
+```
+sudo supervisorctl start my-node-app
+sudo supervisorctl status my-node-app
+```
+
 ## Additional Considerations
-Set up SSL/TLS certificates using Let's Encrypt to enable HTTPS for both apps.
-Configure your domain's DNS settings to point to your EC2 instance's IP address.
-Use environment variables to store sensitive information and secret keys securely.
-Set up a process manager like systemd or pm2 to ensure your Flask and Next.js apps automatically start on system boot.
-By following these steps, you can successfully deploy both your Flask and Next.js apps on an EC2 instance with Nginx, making them accessible via your domain or IP address.
+Set up SSL certificates using Let's Encrypt to enable HTTPS for both apps.
+
+Refer this blog for SSL certificate https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1
+
+
 
 ## Contact Support
 If you encounter any issues or have questions at any stage of the process, please don't hesitate to reach out to our support team at support@example.com. We're here to assist you.

@@ -1,0 +1,11 @@
+curl -X POST -H "Content-Type: application/json" -H "AuthKey: ajsjjsjjsjakflalsaldksdan" -d '{
+"modalId": "sass-a3s9-28eht-jskso-9be-5e98-4fe5-85a5",
+"openkey":"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",
+"title": "educational tool",
+"contentType": "blog post in pirate language",
+"s3Path": "https://sample-chatbot-project.s3.ap-south-1.amazonaws.com/samp.txt", 
+"guidelines": "soft tone, simple words",
+"responseSize": "60 words",
+"description": "",
+ "ip":"ec2-15-207-109-76.ap-south-1.compute.amazonaws.com"
+}' http://localhost:4000/api/create_chat

@@ -95,39 +95,6 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 
 <br>
 
-## Add New Font
-
-Steps to add new font: 
-
-1. **Import font:**
-    Import the font that you want to add
-
-    ```shell
-    import { FONT_NAME } from 'next/font/google'
-    ```
-
-2. **Initialize Font:**
-    Initialize new font
-
-    ```shell
-    const font_name = FONT_NAME({ subsets: [], weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']})
-    ```
-
-3. **Set Font:**
-    Set new font in useEffect hook
-
-    ```shell
-    // To set font fontFamily
-    useEffect(() => {
-        ... 
-        ...
-        // Added below else block
-        else if(fontFamily.toLowerCase() === 'font_name_from_url'){
-            setFontStyle(FONT_NAME)
-        }
-    }, [])
-    ```
-
 # Deploying Flask and Next.js Apps on an EC2 Instance 
 This guide provides step-by-step instructions on how to deploy a Flask app and a Next.js app on an EC2 instance using Nginx as a reverse proxy. The Flask app will be accessible via the /api route, while the Next.js app will be served on the base URL.
 
@@ -194,7 +161,10 @@ CREATE TABLE chattab (
     responSeSize VARCHAR(255),
     description VARCHAR(500),
     paid BOOLEAN,
-    openkey VARCHAR(255)
+    openkey VARCHAR(255),
+    buttonText VARCHAR(100),
+    headerText VARCHAR(100),
+    descriptionText VARCHAR(100)
 );
 
 ```

@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 from flask_cors import CORS, cross_origin
 from create_index_vdb import createUserIndex
+from delete_index_vdb import deleteUserIndex
 import chromadb
 
 
@@ -33,7 +34,7 @@ def show():
 
 @app.route("/api/create_chat", methods=["POST","GET"])
 @cross_origin()
-def uploadParams():
+def createParams():
     """
     Calls getFile from fetch_file to fetch and store file using s3path. 
     Calls createUserIndex from create_index_vdb to create vector index
@@ -62,12 +63,12 @@ def uploadParams():
             res = createUserIndex(modalId=data["modalId"],openkey=data["openkey"])
 
         else:
-            res = {"error" : progress,"status":"success"}
+            res = {"error" : progress,"status":"failure"}
             return jsonify(res)
 
 
         if res == "success":
-            res = database_utils.createUser(modalId=data["modalId"], title=data["title"],contentType=data["contentType"],s3Path=data["s3Path"], guidelines=data["guidelines"],responseSize=data["responseSize"],description=data["description"],openkey=data["openkey"],paid=1)
+            res = database_utils.createUser(modalId=data["modalId"], title=data["title"],contentType=data["contentType"],s3Path=data["s3Path"], guidelines=data["guidelines"],responseSize=data["responseSize"],description=data["description"],openkey=data["openkey"],buttonText=data['buttonText'], headerText=data['headerText'], descriptionText=data['descriptionText'],paid=1)
 
         else:
             res = {"error" : res,"status":"failure"}
@@ -83,6 +84,7 @@ def uploadParams():
     
     res = {"status": "success", "response": rf"<iframe src='http://{data['ip']}?key={data['modalId']}' frameborder='0' width='300' height='400'></iframe>"}
     return jsonify(res), 200
+
 
 
 
@@ -148,6 +150,8 @@ def checkStatus():
         res = {
             "paid" : str(res[0]),
             "contentType": str(res[1]),
+            "description": str(res[2]),
+            "button_text": str(res[3]),
             "status":"success"
         }
 

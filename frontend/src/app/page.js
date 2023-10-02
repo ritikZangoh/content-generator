@@ -9,19 +9,13 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import ClipLoader from 'react-spinners/ClipLoader'
 import { Icon } from '@iconify/react'
-import { DM_Sans, Montserrat, Poppins, Inter } from 'next/font/google'
-
-const dmFont = DM_Sans({ subsets: [] })
-const monsterrat = Montserrat({ subsets: [] })
-const poppins = Poppins({ subsets: [],
-weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']})
-const inter = Inter({ subsets: [] })
 
 export default function Home() {
   // State variables to manage various aspects of the component
-  const [typeOfContent, setTypeOfContent] = useState('')
+  const [headerText, setHeaderText] = useState('')
+  const [description, setDescription] = useState('')
+  const [buttonText, setButtonText] = useState('')
   const [message, setMessage] = useState('')
   const [charCount, setCharCount] = useState(0)
   const [responseMessage, setResponseMessage] = useState('')
@@ -31,13 +25,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [waitForResponse, setWaitForResponce] = useState(false)
   const [validKey, setValidKey] = useState(true);
-  const [fontStyle, setFontStyle] = useState(dmFont);
   const [rows, setRows] = useState(1);
 
   // Retrieve query parameters from the URL
   const searchParams = useSearchParams()
 
-  let fontFamily = searchParams.get('fontfamily')
+  const fontFamily = searchParams.get('fontfamily')
   const textColor = searchParams.get('textcolor')
   const buttonColor = searchParams.get('buttoncolor')
   const fontSize = searchParams.get('fontsize')
@@ -46,6 +39,8 @@ export default function Home() {
   const width = searchParams.get('width')
   const height = searchParams.get('height')
   const modalID = searchParams.get('key')
+  const pageColor = searchParams.get('pagecolor')
+  const inputColor = searchParams.get('inputcolor')
 
   // To set the readOnly state
   useEffect(() => {
@@ -65,19 +60,19 @@ export default function Home() {
 
   // To set font fontFamily
   useEffect(() => {
-    if(!fontFamily) {
-      setFontStyle(dmFont)
-    }
-    else if(fontFamily.toLowerCase() === 'monsterrat'){
-      setFontStyle(monsterrat)
-    }
-    else if(fontFamily.toLowerCase() === 'poppins'){
-      setFontStyle(poppins)
-    }
-    else if(fontFamily.toLowerCase() === 'inter'){
-      setFontStyle(inter)
-    }
-  }, [])
+    // Import custom fonts from google fonts
+    const link = document.createElement('link');
+    link.href = `https://fonts.googleapis.com/css?family=${fontFamily}&display=swap`;
+    link.rel = 'stylesheet';
+
+    // Append the link element to the document's head
+    document.head.appendChild(link);
+
+    // Cleanup: Remove the link element when the component unmounts
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, [fontFamily])
 
 
   // To set billing status
@@ -110,7 +105,9 @@ export default function Home() {
         let paid = responseData.paid == 0 ? false : true
         setPaidStatus(paid)
         console.log(responseData)
-        setTypeOfContent(responseData.contentType)
+        setHeaderText(responseData.header_text)
+        setDescription(responseData.description_text)
+        setButtonText(responseData.button_text)
         if(responseData.response == 'None') setValidKey(false);
       }
     } catch (error) {
@@ -168,7 +165,7 @@ export default function Home() {
   return (
     <div
       className="w-screen h-screen flex items-center justify-center"
-      style={{ fontFamily: fontStyle?.style?.fontFamily }}
+      style={{ fontFamily: fontFamily /* fontStyle?.style?.fontFamily */ }}
     >
       {/* Show when key is invalid */}
       {!validKey &&
@@ -178,7 +175,7 @@ export default function Home() {
       }
       <div
         className="w-[491px] shadow-md relative rounded-xl px-6 py-5"
-        style={{ width: width + 'px', height: height + 'px' }}
+        style={{ width: width + 'px', height: height + 'px', background: '#' + pageColor }}
       >
         {/* <ClipLoader
           cssOverride={{ position: 'absolute', top: '20px', right: '50%' }}
@@ -186,10 +183,10 @@ export default function Home() {
         /> */}
         <div className="relative">
           <h2
-            className="text-[14px] font-bold mt-6 text-[#16192C]"
+            className="text-[14px] font-bold mt-6 text-[#16192C] mr-11"
             style={{ color: '#' + textColor, fontWeight: fontWeight, fontSize: fontSize + 'px' }}
           >
-            Tell me what to {typeOfContent}
+            Tell me what to {headerText}
           </h2>
           <span className="text-[12px] text-[#868686] absolute top-0 right-0">
             {charCount}/2048
@@ -204,6 +201,7 @@ export default function Home() {
             type="text"
             required
             maxLength="2048"
+            style={{background: '#' + inputColor}}
           />
 
           <button
@@ -216,7 +214,7 @@ export default function Home() {
               fontSize: fontSize + 'px' 
             }}
           >
-            Generate
+            { buttonText || 'Generate' }
             {loading && (
               <Icon
                 className="h-6 w-10 scale-[2] text-purple-600 ml-2 inline-block"
@@ -230,7 +228,7 @@ export default function Home() {
             className="text-[14px] font-bold mt-6 text-[#16192C]"
             style={{ color: '#' + textColor, fontWeight: fontWeight, fontSize: fontSize + 'px'  }}
           >
-            Here is your generated content
+            Here&#39;s your { description || 'generated content'}
           </h2>
 
           <textarea
@@ -240,7 +238,7 @@ export default function Home() {
             cols="30"
             rows="3"
             disabled={readOnly}
-            style={{ background: readOnly ? 'white' : '#F2F2F2', fontSize: fontSize }}
+            style={{ background: readOnly ? 'white' : '#' + inputColor || '#F2F2F2', fontSize: fontSize }}
             value={responseMessage}
             onChange={(e) => setResponseMessage(e.target.value)}
           ></textarea>

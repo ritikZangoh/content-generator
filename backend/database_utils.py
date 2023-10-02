@@ -16,7 +16,7 @@ def connect_db():
     return connection 
   
 
-def createUser(modalId, title, contentType, s3Path, guidelines, responseSize, description,openkey,paid=False):
+def createUser(modalId, title, contentType, s3Path, guidelines, responseSize, description,openkey, buttonText,paid=False):
     """
     Creates enteries in the Database 
 
@@ -28,6 +28,7 @@ def createUser(modalId, title, contentType, s3Path, guidelines, responseSize, de
     - guidelines (string)
     - description (string)
     - paid (bool)
+    - buttonText (string)
 
     Returns
     - string
@@ -42,10 +43,10 @@ def createUser(modalId, title, contentType, s3Path, guidelines, responseSize, de
         cursor.execute(query,(modalId,))
         connection.commit()
 
-        query = """INSERT INTO chattab (modalid, title, contentType, samplefile, guidelines, responSeSize, description,paid,openkey) 
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+        query = """INSERT INTO chattab (modalid, title, contentType, samplefile, guidelines, responSeSize, description,paid,openkey, buttonText) 
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s, %s)"""
 
-        cursor.execute(query,(modalId, title, contentType, s3Path, guidelines, responseSize, description, paid,openkey))
+        cursor.execute(query,(modalId, title, contentType, s3Path, guidelines, responseSize, description, paid,openkey, buttonText))
         connection.commit()
 
         if connection:
@@ -103,7 +104,7 @@ def getContentType(modal_id):
         connection = connect_db()
         cursor = connection.cursor()
 
-        query = """SELECT paid, contentType FROM chattab WHERE modalId = %s"""
+        query = """SELECT paid, headerText, descriptionText, buttonText FROM chattab WHERE modalId = %s"""
         cursor.execute(query,(modal_id,))
         res = cursor.fetchone()
         return res
@@ -115,6 +116,7 @@ def getContentType(modal_id):
     finally:
         cursor.close()
         connection.close()
+
 
 
 
